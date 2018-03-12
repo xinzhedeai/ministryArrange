@@ -8,7 +8,7 @@
   	<!-- 之前pom总是报错，原来是少了这段properties的配置 -->
 	<properties>
 		<java-version>1.7</java-version>
-		<org.springframework-version>3.2.3.RELEASE</org.springframework-version>
+		<org.springframework-version>4.2.3.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -156,7 +156,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.1.31</version>
+			<version>1.1.46</version>
 		</dependency>
 		<!-- springmvc json数据格式映射需要的jar包 -->
 		<dependency>

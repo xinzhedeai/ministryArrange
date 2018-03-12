@@ -35,5 +35,9 @@ public class Md5Str {
 	public void enumTest(){
 		System.out.println(MSG_CONST.DELETEFAIL);
 	}
+	@Test
+	public void UUIDTEST(){
+//		System.out.println(UUID());
+	}
 	
 }

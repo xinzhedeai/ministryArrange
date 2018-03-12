@@ -9,4 +9,45 @@
 	    where 
 	    	user_name = #{userName} and user_pwd = #{userPwd};
 	</select>
+	<insert id="insertUser">
+		insert into user
+		(
+		<!-- id, -->
+		username,
+		pwd,
+		tel,
+		area,
+		church,
+		serve_days_pre_forth,
+		serve_days_fifth
+		)
+		values
+		(
+		<!-- UUID(), -->
+		#{username},
+		UUID(),
+		#{tel},
+		#{area},
+		#{church},
+		#{serve_days_pre_forth},
+		#{serve_days_fifth}
+		)
+	</insert>
+	<insert id="insertAddress">
+		insert into serviceaddress
+		(
+		<!-- id, -->
+		area,
+		church,
+		reunion_type
+		)
+		values
+		(
+		<!-- UUID(), -->
+		#{area},
+		#{church},
+		#{reunion_type}
+		)
+	</insert>
+	
 </mapper>

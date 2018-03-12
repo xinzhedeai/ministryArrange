@@ -25,7 +25,7 @@ $(function() {
 	$('#upload_scripture_div').plupload({
 		// General settings
 		runtimes : 'html5,flash,silverlight,html4',
-		url : '/scriptureAction/impScriptureBatch.action',
+		url : '/ministryAction/impUserBatch.action',
 
 		// User can upload no more then 20 files in one go (sets multiple_queues to false)
 		max_file_count: 20,
