@@ -11,11 +11,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import customMapper.CustomUserInfoMapper;
+import exception.SysException;
 import normalMapper.UserMapper;
 import normalPo.User;
 import normalPo.UserExample;
+import pageModel.EasyUIGridObj;
 import pageModel.JsonResult;
+import pageModel.LayUIGridObj;
 import service.UserService;
+import util.MSG_CONST;
+import util.PageUtil;
 import util.SpringUtils;
 @Controller
 @RequestMapping("/userAction")
@@ -27,6 +33,11 @@ public class UserAction extends BaseAction{
 	private UserMapper userMapper;
 	@Autowired
 	private UserService userServiceImpl;
+	
+	@Autowired
+	private CustomUserInfoMapper customUserMapper;
+	@Autowired
+	private LayUIGridObj layObj;
 /*	@RequestMapping("/login")
 	public String login()throws Exception{
 		return "login";
@@ -64,5 +75,23 @@ public class UserAction extends BaseAction{
 			j.setMsg("账号或密码错误！");
 		}
 		return j;
+	}
+	@ResponseBody
+	@RequestMapping("/getServiceUsers")
+	public LayUIGridObj getServiceUsers(HttpServletRequest req)throws Exception{
+		Map reqMap = SpringUtils.getParameterMap(req);
+		try {
+			layObj = PageUtil.searchByPage(customUserMapper, reqMap, "getUserListByPage");
+		} catch (SysException e) {
+			e.printStackTrace();
+		}
+		if(layObj != null){
+			layObj.setCode(0);
+			layObj.setMsg("获取成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("获取失败");
+		}
+		return layObj;
 	}
 }

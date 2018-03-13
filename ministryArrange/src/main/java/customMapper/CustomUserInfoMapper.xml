@@ -49,5 +49,24 @@
 		#{reunion_type}
 		)
 	</insert>
-	
+	<select id="getUserListByPage"  parameterType="Map" resultType="Map">
+		SELECT
+			*				
+		FROM
+			user 
+   		<where>
+		 	<if test="area != null and area != ''">
+			 	and area like '%${area}%'
+		 	</if>
+		 	<if test="church != null and church != ''">
+			 	and church like '%${church}%'
+		 	</if>
+		 	<if test="serve_days_pre_forth != null and serve_days_pre_forth != ''">
+			 	and serve_days_pre_forth = #{serve_days_pre_forth}
+		 	</if>
+		 	<if test="serve_days_fifth != null and serve_days_fifth != ''">
+			 	and serve_days_fifth like #{serve_days_fifth}
+		 	</if>
+	 	</where>	
+	 </select>
 </mapper>

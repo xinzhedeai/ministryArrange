@@ -19,4 +19,6 @@
 	<bean id="scriptureService" class="service.impl.ScriptureServiceImpl"/>
 	<!-- 用户管理 -->
 	<bean id="userService" class="service.impl.UserServiceImpl"/>
+	<!-- 模型model类 -->
+	<bean id="pageModel" class="pageModel.LayUIGridObj"/>
 </beans>
