@@ -51,7 +51,16 @@
 	</insert>
 	<select id="getUserListByPage"  parameterType="Map" resultType="Map">
 		SELECT
-			*				
+			id
+			,username
+			,pwd
+			,tel
+			,area
+			,church
+			,longitude
+			,latitude
+			,serve_days_pre_forth * 1 as serve_days_pre_forth
+			,serve_days_fifth * 1 as serve_days_fifth			
 		FROM
 			user 
    		<where>
@@ -65,7 +74,7 @@
 			 	and serve_days_pre_forth = #{serve_days_pre_forth}
 		 	</if>
 		 	<if test="serve_days_fifth != null and serve_days_fifth != ''">
-			 	and serve_days_fifth like #{serve_days_fifth}
+			 	and serve_days_fifth like  = #{serve_days_fifth}
 		 	</if>
 	 	</where>	
 	 </select>
