@@ -29,75 +29,58 @@
                   <div class="layui-form-item">
                     <label class="layui-form-label">日期范围</label>
                     <div class="layui-input-inline">
-                      <input class="layui-input" placeholder="开始日" id="LAY_demorange_s">
+                      <input class="layui-input" placeholder="开始日" id="st_date">
                     </div>
                     <div class="layui-input-inline">
-                      <input class="layui-input" placeholder="截止日" id="LAY_demorange_e">
+                      <input class="layui-input" placeholder="截止日" id="ed_date">
                     </div>
                     <div class="layui-input-inline">
                       <input type="text" name="username"  placeholder="请输入登录名" autocomplete="off" class="layui-input">
                     </div>
                     <div class="layui-input-inline" style="width:80px">
                         <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+                        <button class="layui-btn" type="button" id="upload" >上传文件</button>
                     </div>
                   </div>
                 </div> 
             </form>
-            <xblock><button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon">&#xe640;</i>批量删除</button><button class="layui-btn" onclick="admin_add('添加用户','admin-add.html','600','500')"><i class="layui-icon">&#xe608;</i>添加</button><span class="x-right" style="line-height:40px">共有数据：88 条</span></xblock>
+            <xblock><button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon">&#xe640;</i>批量删除</button><button class="layui-btn" onclick="admin_add('添加用户','admin-add.html','600','500')"><i class="layui-icon">&#xe608;</i>添加</button></xblock>
             <table id="serviceUserList"></table>
         </div>
-        <script src="./lib/layui/layui.all.js" charset="utf-8"></script>
+		<!-- <div class="layui-input-inline">
+			<input class="layui-input" placeholder="开始日" id="st_date">
+		</div>
+		<button type="button" class="layui-btn test">
+			<i class="layui-icon">&#xe67c;</i>上传图片
+		</button>
+  <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"  href="javascript:location.replace(location.href);" title="刷新"><i class="layui-icon" style="line-height:30px">ဂ</i></a> -->
+	<script src="./lib/layui/layui.js" charset="utf-8"></script>
         <script src="./js/x-layui.js" charset="utf-8"></script>
         <script>
-       	var table = layui.table;
-        console.info(layui.table);
-        /*     layui.use(['laydate','element','laypage','layer' , 'table'], function(){
-                $ = layui.jquery;//jquery
-              laydate = layui.laydate;//日期插件
-              lement = layui.element();//面包导航
-              laypage = layui.laypage;//分页
-              layer = layui.layer;//弹出层
-              table = layui.table;//网格
-				console.info(table);
-              //以上模块根据需要引入
-              laypage({
-                cont: 'page'
-                ,pages: 100
-                ,first: 1
-                ,last: 100
-                ,prev: '<em><</em>'
-                ,next: '<em>></em>'
-              }); 
-              
-              var start = {
-                min: laydate.now()
-                ,max: '2099-06-16 23:59:59'
-                ,istoday: false
-                ,choose: function(datas){
-                  end.min = datas; //开始日选好后，重置结束日的最小日期
-                  end.start = datas //将结束日的初始值设定为开始日
-                }
-              };
-              
-              var end = {
-                min: laydate.now()
-                ,max: '2099-06-16 23:59:59'
-                ,istoday: false
-                ,choose: function(datas){
-                  start.max = datas; //结束日选好后，重置开始日的最大日期
-                }
-              };
-              
-              document.getElementById('LAY_demorange_s').onclick = function(){
-                start.elem = this;
-                laydate(start);
-              }
-              document.getElementById('LAY_demorange_e').onclick = function(){
-                end.elem = this
-                laydate(end);
-              }
-              
-            }); */
+        layui.use(['upload', 'table', 'layer', 'laydate'], function(){
+        	  table = layui.table;
+              upload = layui.upload;
+              layer = layui.layer;
+              laydate = layui.laydate
+        console.info(upload);
+        var uploadInst = upload.render({
+	       	elem: '#upload'
+         	,url: '/ministryAction/impUserBatch.action'
+         	,accept: 'file'
+       		 ,done: function(res){
+       	    	 console.info('成功了~~~');
+       	    	 layer.alert('成功了哈哈哈哈');
+       	      //上传完毕回调
+       	    }
+       	    ,error: function(){
+       	      //请求异常回调
+       	      console.info('&&&&&&');
+       	    } 
+          });
+        console.info(laydate);
+           laydate.render({
+        	   elem: '#st_date'
+           });
           //网格数据初始化
             table.render({
 			    elem: '#serviceUserList'
@@ -117,6 +100,7 @@
                 ,height: 315
 			    
 			  });
+        });
             //批量删除提交
              function delAll () {
                 layer.confirm('确认要删除吗？',function(index){
