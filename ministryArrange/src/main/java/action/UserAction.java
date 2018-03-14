@@ -94,4 +94,17 @@ public class UserAction extends BaseAction{
 		}
 		return layObj;
 	}
+	@ResponseBody
+	@RequestMapping("/addUser")
+	public LayUIGridObj addUser(HttpServletRequest req)throws Exception{
+		Map reqMap = SpringUtils.getParameterMap(req);
+		if(customUserMapper.insertUser(reqMap) > 0){
+			layObj.setCode(0);
+			layObj.setMsg("获取成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("获取失败");
+		}
+		return layObj;
+	}
 }
