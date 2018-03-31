@@ -36,8 +36,6 @@ public class UserAction extends BaseAction{
 	
 	@Autowired
 	private CustomUserInfoMapper customUserMapper;
-	@Autowired
-	private LayUIGridObj layObj;
 /*	@RequestMapping("/login")
 	public String login()throws Exception{
 		return "login";
@@ -80,8 +78,9 @@ public class UserAction extends BaseAction{
 	@RequestMapping("/getServiceUsers")
 	public LayUIGridObj getServiceUsers(HttpServletRequest req)throws Exception{
 		Map reqMap = SpringUtils.getParameterMap(req);
+		LayUIGridObj layObj = new LayUIGridObj();
 		try {
-			layObj = PageUtil.searchByPage(customUserMapper, reqMap, "getUserListByPage");
+			 layObj = PageUtil.searchByPage(customUserMapper, reqMap, "getUserListByPage");
 		} catch (SysException e) {
 			e.printStackTrace();
 		}
@@ -98,12 +97,13 @@ public class UserAction extends BaseAction{
 	@RequestMapping("/addUser")
 	public LayUIGridObj addUser(HttpServletRequest req)throws Exception{
 		Map reqMap = SpringUtils.getParameterMap(req);
+		LayUIGridObj layObj = new LayUIGridObj();
 		if(customUserMapper.insertUser(reqMap) > 0){
 			layObj.setCode(0);
-			layObj.setMsg("获取成功");
+			layObj.setMsg("添加成功");
 		}else{
 			layObj.setCode(-1);
-			layObj.setMsg("获取失败");
+			layObj.setMsg("添加失败");
 		}
 		return layObj;
 	}
