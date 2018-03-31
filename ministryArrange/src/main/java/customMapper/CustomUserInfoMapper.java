@@ -11,4 +11,6 @@ public interface CustomUserInfoMapper {
 	int insertAddress(Map map);
 	
 	List<Map> getUserListByPage(Map map);
+	
+	List<Map> getAddrListByPage(Map map);
 }

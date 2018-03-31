@@ -93,6 +93,26 @@ public class UserAction extends BaseAction{
 		}
 		return layObj;
 	}
+	
+	@ResponseBody
+	@RequestMapping("/getServiceAddress")
+	public LayUIGridObj getServiceAddress(HttpServletRequest req)throws Exception{
+		Map reqMap = SpringUtils.getParameterMap(req);
+		LayUIGridObj layObj = new LayUIGridObj();
+		try {
+			 layObj = PageUtil.searchByPage(customUserMapper, reqMap, "getAddrListByPage");
+		} catch (SysException e) {
+			e.printStackTrace();
+		}
+		if(layObj != null){
+			layObj.setCode(0);
+			layObj.setMsg("获取成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("获取失败");
+		}
+		return layObj;
+	}
 	@ResponseBody
 	@RequestMapping("/addUser")
 	public LayUIGridObj addUser(HttpServletRequest req)throws Exception{

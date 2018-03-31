@@ -78,4 +78,25 @@
 		 	</if>
 	 	</where>	
 	 </select>
+	 
+ 	<select id="getAddrListByPage"  parameterType="Map" resultType="Map">
+		SELECT
+			id
+			,area
+			,church
+			, case reunion_type WHEN '0' THEN '星期四'
+			WHEN '1' THEN '星期六'
+			ELSE '星期日'
+			END AS reunion_type
+		FROM
+			serviceaddress 
+   		<where>
+		 	<if test="area != null and area != ''">
+			 	and area like '%${area}%'
+		 	</if>
+		 	<if test="church != null and church != ''">
+			 	and church like '%${church}%'
+		 	</if>
+	 	</where>	
+	 </select>
 </mapper>
