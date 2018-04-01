@@ -99,4 +99,32 @@
 		 	</if>
 	 	</where>	
 	 </select>
+	 <select id="getAddrByType"  parameterType="Map" resultType="Map">
+		SELECT
+			area
+			,church
+			, case reunion_type WHEN '0' THEN '星期四'
+			WHEN '1' THEN '星期六'
+			ELSE '星期日'
+			END AS reunion_type
+		FROM
+			serviceaddress 
+	 </select>
+ 	<insert id="insertAddrDate" parameterType="Map">
+		insert into servicearrange
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			area,
+			church,
+			reuniondate,
+			reuniondateCN
+		</trim>   
+		 <foreach collection="list" item="item" index="index" open="VALUES" close=";" separator=",">
+	  		<trim prefix="(" suffix=")" suffixOverrides=",">
+		   		#{item.area},
+		   		#{item.church},
+		   		#{item.reunion_date},
+		   		#{item.reunion_dateCN},
+		   </trim>
+		</foreach>
+	</insert>
 </mapper>

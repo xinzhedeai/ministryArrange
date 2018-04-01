@@ -1,4 +1,8 @@
 package action;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +24,7 @@ import pageModel.EasyUIGridObj;
 import pageModel.JsonResult;
 import pageModel.LayUIGridObj;
 import service.UserService;
+import util.DateDealUtil;
 import util.MSG_CONST;
 import util.PageUtil;
 import util.SpringUtils;
@@ -124,6 +129,52 @@ public class UserAction extends BaseAction{
 		}else{
 			layObj.setCode(-1);
 			layObj.setMsg("添加失败");
+		}
+		return layObj;
+	}
+	@ResponseBody
+	@RequestMapping("/addrRelDate")
+	public LayUIGridObj addrRelDate(HttpServletRequest req)throws Exception{
+		LayUIGridObj layObj = new LayUIGridObj();
+		//获取堂点列表
+		List<Map> addrs = customUserMapper.getAddrByType();
+		//获取制定月份的周日、周六和周四对应的日期
+		String[] s = {"2018-03"};//默认先指定个日期
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("EEE");//格式-星期几
+		List<Map> dates = new ArrayList();
+		for (String dateStr : s) {//遍历月
+			 for(int i = 1; i <= DateDealUtil.getDays(dateStr); i++){//遍历月里面的天
+				 Map tempMap = new HashMap();
+				 Date serviceDate = sdf1.parse(dateStr + "-" + i);//聚会日期
+	             String serviceDateF = sdf1.format(serviceDate);
+		         String serviceDateCN = sdf2.format(serviceDate);
+		         tempMap.put("reunion_date", serviceDateF);
+		         tempMap.put("reunion_dateCN", serviceDateCN);
+		         dates.add(tempMap);
+			 }
+		}
+		List<Map> addrRelDate = new ArrayList();
+		//获取日期集合之后，开始分配
+		for(Map addr : addrs){
+			for(Map date : dates){
+				if(addr.get("reunion_type").equals(date.get("reunion_dateCN"))){
+					Map temAddrDateMap = new HashMap();
+					temAddrDateMap.putAll(addr);
+					temAddrDateMap.putAll(date);
+					addrRelDate.add(temAddrDateMap);
+					System.err.println(temAddrDateMap);
+				}
+			}
+		}
+		//时间分配完成，向数据库插入记录
+		
+		if(customUserMapper.insertAddrDate(addrRelDate) > 0){
+			layObj.setCode(0);
+			layObj.setMsg("时间分配成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("时间分配失败");
 		}
 		return layObj;
 	}

@@ -13,4 +13,8 @@ public interface CustomUserInfoMapper {
 	List<Map> getUserListByPage(Map map);
 	
 	List<Map> getAddrListByPage(Map map);
+
+	int insertAddrDate(List<Map> addrRelDate);
+
+	List<Map> getAddrByType();
 }
