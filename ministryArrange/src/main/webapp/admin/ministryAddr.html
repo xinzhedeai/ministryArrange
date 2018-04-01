@@ -41,7 +41,7 @@
 						<button class="layui-btn" lay-submit="" lay-filter="sreach">
 							<i class="layui-icon">&#xe615;</i>
 						</button>
-						<button class="layui-btn" type="button" id="upload">上传文件</button>
+						<button class="layui-btn" type="button" id="addrReldateBtn">堂点时间匹配</button>
 					</div>
 				</div>
 			</div>
@@ -67,8 +67,9 @@
 	<script>
 		layui
 				.use(
-						[ 'upload', 'table', 'layer', 'laydate' ],
+						[ 'upload', 'table', 'layer', 'laydate', 'jquery' ],
 						function() {
+							$ = layui.jquery;
 							table = layui.table;
 							upload = layui.upload;
 							layer = layui.layer;
@@ -76,6 +77,17 @@
 							console.info(upload);
 							laydate.render({
 								elem : '#st_date'
+							});
+							$('#addrReldateBtn').click(function(){
+								$.ajax({
+									  url: '/userAction/addrRelDate.action',
+									  cache: false,
+									  success: function(res){
+										console.log(res.msg);
+									    layer.alert(res.msg);
+									  }
+
+									});
 							});
 							//网格数据初始化
 							table.render({
