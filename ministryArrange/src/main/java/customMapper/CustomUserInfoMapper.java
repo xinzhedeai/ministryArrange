@@ -17,4 +17,12 @@ public interface CustomUserInfoMapper {
 	int insertAddrDate(List<Map> addrRelDate);
 
 	List<Map> getAddrByType();
+	
+	List<Map> getServiceList(Map map);
+
+	List<Map> getAddrRelDateList(String string);
+
+	List<Map> getServiceUsers(String string);
+
+	int serviceArrange(List<Map> arrangedRecs);
 }

@@ -151,6 +151,8 @@ public class UserAction extends BaseAction{
 		         String serviceDateCN = sdf2.format(serviceDate);
 		         tempMap.put("reunion_date", serviceDateF);
 		         tempMap.put("reunion_dateCN", serviceDateCN);
+		         tempMap.put("weekofdate", DateDealUtil.getWeeks(serviceDate));
+		         System.err.println("&&&&&&&&&&&&&&"+tempMap);
 		         dates.add(tempMap);
 			 }
 		}
@@ -175,6 +177,105 @@ public class UserAction extends BaseAction{
 		}else{
 			layObj.setCode(-1);
 			layObj.setMsg("时间分配失败");
+		}
+		return layObj;
+	}
+	@ResponseBody
+	@RequestMapping("/getServiceList")
+	public LayUIGridObj getServiceList(HttpServletRequest req)throws Exception{
+		Map reqMap = SpringUtils.getParameterMap(req);
+		LayUIGridObj layObj = new LayUIGridObj();
+		try {
+			 layObj = PageUtil.searchByPage(customUserMapper, reqMap, "getServiceList");
+		} catch (SysException e) {
+			e.printStackTrace();
+		}
+		if(layObj != null){
+			layObj.setCode(0);
+			layObj.setMsg("获取成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("获取失败");
+		}
+		return layObj;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/serviceArrange")
+	public LayUIGridObj serviceArrange(HttpServletRequest req)throws Exception{
+		LayUIGridObj layObj = new LayUIGridObj();
+		//定义分配完成的集合
+		List<Map> arrangedRecs = new ArrayList();
+		//获取待分配堂点记录列表（安排状态值为1的数据）(前四周)
+		List<Map> forthArrangeRecs = customUserMapper.getAddrRelDateList("forth");
+		//获取待分配堂点记录列表（安排状态值为1的数据）(第五周)
+		List<Map> fifthArrangeRecs = customUserMapper.getAddrRelDateList("fifth");
+		//获取服侍同工（serve_days_pre_forth值不为0的数据） 前四周可以服侍的同工
+		List<Map> forthUsers = customUserMapper.getServiceUsers("forth");
+		//获取服侍同工（serve_days_pre_forth值不为0的数据） 第五周可以服侍的同工
+		List<Map> fifthUsers = customUserMapper.getServiceUsers("fifth");
+		//开始分配同工(先进行前周四的同工分配)
+		for (Map userMap : forthUsers) {//遍历服侍同工
+			 for(int i = 0; i < (int) userMap.get("serve_days_pre_forth"); i++){//遍历月里面的天
+				 for(Map arrangeRec : forthArrangeRecs){
+					 int flag = 0;//用于判断一个同工是否派工完了
+					 if(!userMap.get("church").equals(arrangeRec.get("church"))){
+						 Map tempMap = arrangeRec;
+						 tempMap.put("user_id", userMap.get("id"));
+						 arrangedRecs.add(tempMap);//将符合条件的分配存到已分配结果list中
+						 forthArrangeRecs.remove(arrangeRec);//从原list中删除掉已分派完毕的堂点记录
+						 flag++;
+						 //当同工完全分配成功之后，将从原来的同工list移除，用来统计那些分配完，那些还没分配完
+						 if(flag == (int) userMap.get("serve_days_fifth")){
+							 fifthUsers.remove(userMap);
+						 }
+					 }
+				 }
+			 }
+		}
+		//开始分配同工(先进行周五的同工分配)
+		for (Map userMap : fifthUsers) {//遍历服侍同工
+			 for(int i = 0; i < (int) userMap.get("serve_days_fifth"); i++){//遍历月里面的天
+				 for(Map arrangeRec : fifthArrangeRecs){
+					 int flag = 0;//用于判断一个同工是否派工完了
+					 if(!userMap.get("church").equals(arrangeRec.get("church"))){
+						 Map tempMap = arrangeRec;
+						 tempMap.put("user_id", userMap.get("id"));
+						 arrangedRecs.add(tempMap);//将符合条件的分配存到已分配结果list中
+						 fifthArrangeRecs.remove(arrangeRec);//从原list中删除掉已分派完毕的堂点记录
+						 flag++;
+						 //当同工完全分配成功之后，将从原来的同工list移除，用来统计那些分配完，那些还没分配完
+						 if(flag == (int) userMap.get("serve_days_fifth")){
+							 fifthUsers.remove(userMap);
+						 }
+					 }
+				 }
+			 }
+		}
+		
+		for(Map remainRec : forthArrangeRecs){
+			System.err.println("前四周剩余还未分配的堂点");
+			System.err.println(remainRec);
+		}
+		for(Map remainRec : fifthArrangeRecs){
+			System.err.println("第五周剩余还未分配的堂点");
+			System.err.println(remainRec);
+		}
+		for(Map forthuser : forthUsers){
+			System.err.println("前四周剩余还未分配的同工");
+			System.err.println(forthuser);
+		}
+		for(Map fifthuser : fifthUsers){
+			System.err.println("第五周剩余还未分配的同工");
+			System.err.println(fifthuser);
+		}
+		//同工分配处理完成，更新服侍搭配表的user_id字段值。
+		if(customUserMapper.serviceArrange(arrangedRecs) > 0){
+			layObj.setCode(0);
+			layObj.setMsg("派工处理完成");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("派工处理失败");
 		}
 		return layObj;
 	}

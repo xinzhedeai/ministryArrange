@@ -116,7 +116,8 @@
 			area,
 			church,
 			reuniondate,
-			reuniondateCN
+			reuniondateCN,
+			weekofdate
 		</trim>   
 		 <foreach collection="list" item="item" index="index" open="VALUES" close=";" separator=",">
 	  		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -124,7 +125,71 @@
 		   		#{item.church},
 		   		#{item.reunion_date},
 		   		#{item.reunion_dateCN},
+		   		#{item.weekofdate}
 		   </trim>
 		</foreach>
 	</insert>
+	 <select id="getServiceList"  parameterType="Map" resultType="Map">
+		SELECT
+			id
+			,area
+			,church
+			,user_id
+			,reuniondate
+			,reuniondateCN
+			,arrangestatus
+			,weekofdate
+		FROM
+			servicearrange 
+	 </select>
+	 <select id="getAddrRelDateList"  parameterType="String" resultType="Map">
+		SELECT
+			id
+			,area
+			,church
+			,user_id
+			,reuniondate
+			,reuniondateCN
+			,arrangestatus
+			,weekofdate
+		FROM
+			servicearrange
+		where 1 = 1 
+			<if test="_parameter != null and _parameter != '' and _parameter = 'forth'">
+			 	and weekofdate != 5
+		 	</if>
+	 </select>
+	  <select id="getServiceUsers"  parameterType="String" resultType="Map">
+		SELECT
+			id
+			,username
+			,pwd
+			,tel
+			,area
+			,church
+			,longitude
+			,latitude
+			,serve_days_pre_forth * 1 as serve_days_pre_forth
+			,serve_days_fifth * 1 as serve_days_fifth			
+		FROM
+			user 
+		where 1 = 1
+			<if test="_parameter != null and _parameter != '' and _parameter = 'forth'">
+			 	and serve_days_pre_forth is not null
+		 	</if>
+		 	<if test="_parameter != null and _parameter != '' and _parameter = 'fifth'">
+			 	and serve_days_fifth is not null
+		 	</if>
+	 </select>
+	 
+	 
+     <update id="serviceArrange" parameterType="Map">
+   		 
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">   
+           	update servicearrange set     
+            	user_id = #{item.user_id},    
+       	 	WHERE 
+       	 		id = #{item.id}    
+        </foreach>  
+    </update>
 </mapper>

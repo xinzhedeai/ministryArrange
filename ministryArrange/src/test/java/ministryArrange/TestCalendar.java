@@ -80,7 +80,7 @@ public class TestCalendar {
 	            			tempMap.put("weekofdate", DateDealUtil.getWeeks(serviceDate));
 							addrsNew.add(tempMap);
 //							System.err.println(addrsNew.size());
-//							System.out.println(tempMap);
+							System.out.println(tempMap);
 						}
 	            		
 	            		break;
