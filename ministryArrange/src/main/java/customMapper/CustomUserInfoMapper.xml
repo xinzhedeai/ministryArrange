@@ -208,7 +208,7 @@
 		where 1 = 1
 			<if test="_parameter != null and _parameter != '' and _parameter.toString() == 'forth'">
 			 	and serve_days_pre_forth != 0
-			    and serve_days_fifth = 0 
+			   <!--  and serve_days_fifth = 0  -->
 		 	</if>
 		 	<if test="_parameter != null and _parameter != '' and _parameter.toString()  == 'fifth'">
 			 	and serve_days_fifth != 0

@@ -222,7 +222,11 @@ public class UserAction extends BaseAction{
 		//获取服侍同工（serve_days_pre_forth值不为0的数据） 第五周可以服侍的同工
 		List<Map> fifthUsers = customUserMapper.getServiceUsers("fifth");
 		
-		
+		/**
+		 * 由于系统中服侍同工不够，还有6次堂点聚会需要差派
+		 * 目前为了测试完成分配想过，将id为183和144的两位同工进行服侍天数修改
+		 * 由原来的0 0 改为 3 1 
+		 */
 		//开始分配同工(先进行前周四的同工分配)
 		for (Map userMap : forthUsers) {//遍历服侍同工
 			System.err.println(userMap.get("serve_days_pre_forth"));
