@@ -184,12 +184,21 @@
 	 
 	 
      <update id="serviceArrange" parameterType="Map">
-   		 
-        <foreach collection="list" item="item" index="index" open="" close="" separator=";">   
-           	update servicearrange set     
-            	user_id = #{item.user_id},    
-       	 	WHERE 
-       	 		id = #{item.id}    
-        </foreach>  
+       <!--  <foreach collection="list" item="item" index="index" open="" close="" separator=";">   
+           	update 
+           		servicearrange 
+           	set
+           		user_id = #{item.user_id}
+       	 	where id = #{item.id} 
+       	 		  
+        </foreach>   -->
     </update>
+      <update id="serviceArrangeBySingle" parameterType="Map">
+      		update 
+         		servicearrange 
+         	set
+         		user_id = #{user_id}
+     	 	where id = #{id} 
+    </update>
+    
 </mapper>

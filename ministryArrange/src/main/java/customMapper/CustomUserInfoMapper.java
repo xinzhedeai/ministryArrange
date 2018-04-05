@@ -2,6 +2,7 @@ package customMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("rawtypes")
 public interface CustomUserInfoMapper {
 	int checkUser(Map map);
@@ -20,9 +21,11 @@ public interface CustomUserInfoMapper {
 	
 	List<Map> getServiceList(Map map);
 
-	List<Map> getAddrRelDateList(String string);
+	CopyOnWriteArrayList<Map> getAddrRelDateList(String string);
 
-	List<Map> getServiceUsers(String string);
+	CopyOnWriteArrayList<Map> getServiceUsers(String string);
 
 	int serviceArrange(List<Map> arrangedRecs);
+
+	int serviceArrangeBySingle(Map recMap);
 }
