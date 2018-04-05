@@ -226,7 +226,6 @@ public class UserAction extends BaseAction{
 			//此标记用来判断，当一个同工分派完毕之后推出分派堂点循环
 			int arrangeCount = 0;
 			//定义前四周需要分配堂点记录数量(不能放到for里面，不然每次遍历是都会被初始化为最初的值，而不是--后的)
-//			int j = forthArrangeRecs.size();
 			for(Map forthArrRec : forthArrangeRecs){
 				 //分配完毕之后，退出该循序
 				if(arrangeCount == ConvertUtil.long2int(userMap.get("serve_days_pre_forth"))){
@@ -241,7 +240,7 @@ public class UserAction extends BaseAction{
 					 arrangedRecs.add(tempMap);
 					//从原list中删除掉已分派完毕的堂点记录
 					 forthArrangeRecs.remove(forthArrRec);
-					 System.err.println("&&& 已分配的记录 &&&"+ tempMap);
+//					 System.err.println("&&& 已分配的记录 &&&"+ tempMap);
 					//分配成功+1次
 					 arrangeCount ++;
 				 }
@@ -252,26 +251,29 @@ public class UserAction extends BaseAction{
 			 }
 		 }
 		//开始分配同工(先进行周五的同工分配)
-/*		for (Map userMap : fifthUsers) {//遍历服侍同工
-			int arrangeCount = 1;//此标记用来判断一个同工分派完毕之后退出分派堂点循环
-			outer:for(int i = 0; i < ConvertUtil.long2int(userMap.get("serve_days_fifth")); i++){//遍历月里面的天
-				 
-				 for(Map arrangeRec : fifthArrangeRecs){
-					 int flag2 = 0;//用于判断一个同工是否派工完了
-					 if(!userMap.get("church").equals(arrangeRec.get("church"))){
-						 Map tempMap = arrangeRec;
-						 tempMap.put("user_id", userMap.get("id"));
-						 arrangedRecs.add(tempMap);//将符合条件的分配存到已分配结果list中
-						 fifthArrangeRecs.remove(arrangeRec);//从原list中删除掉已分派完毕的堂点记录
-						 flag2++;
-						 //当同工完全分配成功之后，将从原来的同工list移除，用来统计那些分配完，那些还没分配完
-						 if(flag2 == ConvertUtil.long2int(userMap.get("serve_days_fifth"))){
-							 fifthUsers.remove(userMap);
-						 }
-					 }
+		for (Map userMap : fifthUsers) {//遍历服侍同工
+			int arrangeCount = 0;//此标记用来判断一个同工分派完毕之后退出分派堂点循环
+			 for(Map arrangeRec : fifthArrangeRecs){
+				 //分配完毕之后，退出该循序
+				 if(arrangeCount == ConvertUtil.long2int(userMap.get("serve_days_fifth"))){
+					break;
+				 }
+				 if(!userMap.get("church").equals(arrangeRec.get("church"))){
+					 Map tempMap = arrangeRec;
+					 tempMap.put("user_id", userMap.get("id"));
+					 arrangedRecs.add(tempMap);//将符合条件的分配存到已分配结果list中
+					 System.err.println("&&& 已分配的记录 &&&"+ tempMap);
+					 fifthArrangeRecs.remove(arrangeRec);//从原list中删除掉已分派完毕的堂点记录
+					//分配成功+1次
+					 arrangeCount ++;
+					
 				 }
 			 }
-		}*/
+			 //当同工完全分配成功之后，将从原来的同工list移除，用来统计那些分配完，那些还没分配完
+			 if(arrangeCount == ConvertUtil.long2int(userMap.get("serve_days_fifth"))){
+				 fifthUsers.remove(userMap);
+			 }
+		}
 		
 		for(Map remainRec : forthArrangeRecs){
 			System.err.println("前四周剩余还未分配的堂点");
