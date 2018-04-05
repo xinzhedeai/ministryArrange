@@ -185,12 +185,14 @@
 		where 1 = 1 
 			<!-- 获取前四周需要派工的堂点 -->
 			<if test="_parameter != null and _parameter != '' and _parameter.toString() == 'forth'">
-			 	and weekofdate != 5
+			 	and weekofdate != 5 
 		 	</if>
 		 	<!-- 获取第五周需要派工的堂点 -->
 			<if test="_parameter != null and _parameter != '' and _parameter.toString() == 'fifth'">
 			 	and weekofdate = 5
 		 	</if>
+		 	and arrangestatus != 0
+		 	ORDER BY id DESC
 	 </select>
 	  <select id="getServiceUsers"  parameterType="String" resultType="Map">
 		SELECT
@@ -231,6 +233,30 @@
          	set
          		user_id = #{user_id}
      	 	where id = #{id} 
+    </update>
+    <!-- 堂点需要派工 -->
+    <update id="setArrangeStatusY" parameterType="Map">
+  		update 
+     		servicearrange 
+     	set
+     		arrangestatus = 1
+     	where id in
+     	 <foreach collection="list" index="index" item="item" 
+	        separator="," open="(" close=")">
+	        #{item.id}
+	    </foreach>	
+    </update>
+    <!-- 堂点不需要派工 -->
+    <update id="setArrangeStatusN" parameterType="Map">
+  		update 
+     		servicearrange 
+     	set
+     		arrangestatus = 0
+     	where id in
+     	 <foreach collection="list" index="index" item="item" 
+	        separator="," open="(" close=")">
+	        #{item.id}
+	    </foreach>	
     </update>
     
 </mapper>

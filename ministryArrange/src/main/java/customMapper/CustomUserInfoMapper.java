@@ -28,4 +28,8 @@ public interface CustomUserInfoMapper {
 	int serviceArrange(List<Map> arrangedRecs);
 
 	int serviceArrangeBySingle(Map recMap);
+
+	int setArrangeStatusY(List reqList);
+
+	int setArrangeStatusN(List reqList);
 }

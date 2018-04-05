@@ -17,6 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
+
 import customMapper.CustomUserInfoMapper;
 import exception.SysException;
 import normalMapper.UserMapper;
@@ -312,4 +314,30 @@ public class UserAction extends BaseAction{
 		}
 		return layObj;
 	}
+	
+	//设置派工状态接口
+	@ResponseBody
+	@RequestMapping("/setArrangeStatus")
+	public LayUIGridObj setArrangeStatus(HttpServletRequest req)throws Exception{
+		Map reqMap = SpringUtils.getParameterMap(req);
+		List reqList = new ArrayList();
+		reqList = JSON.parseArray(reqMap.get("recs").toString(), Map.class); 
+		LayUIGridObj layObj = new LayUIGridObj();
+		int flag = 0;
+		if(reqMap.get("type").equals("Y")){
+			flag = customUserMapper.setArrangeStatusY(reqList);
+		}else{
+			flag = customUserMapper.setArrangeStatusN(reqList);
+		}
+		if(flag > 0){
+			layObj.setCode(0);
+			layObj.setMsg("设置成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("设置失败");
+		}
+		return layObj;
+	}
 }
+
+

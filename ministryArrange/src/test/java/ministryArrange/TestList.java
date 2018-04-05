@@ -27,5 +27,21 @@ public class TestList {
 		resultList.remove(removedMap);
 		System.err.println(resultList);
 	}
-
+	@Test
+	public void testMapDel() {
+		List<Map> resultList = new ArrayList();
+		Map tempMap1 = new HashMap();
+		Map tempMap2 = new HashMap();
+		Map tempMap3 = new HashMap();
+		tempMap1.put("a", 123);
+		resultList.add(tempMap1);
+		tempMap2.put("b", 2343);
+		resultList.add(tempMap2);
+		tempMap3.put("c", "sssss");
+		resultList.add(tempMap3);
+		Map removedMap = tempMap3;
+		resultList.remove(tempMap3);
+		System.err.println(removedMap);
+		System.err.println(resultList);
+	}
 }

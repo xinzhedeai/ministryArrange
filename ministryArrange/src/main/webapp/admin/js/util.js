@@ -3,7 +3,7 @@ layui.use('jquery',function(){
 	console.info($);
 	window.util = (function($){
 		return {
-			ajaxPostCus: function(url, reqParams, callback){
+			cusAjaxPost: function(url, reqParams, callback){
 				$.ajax({
 			        url: url,
 			        timeout:600000,//超时60秒
@@ -15,10 +15,10 @@ layui.use('jquery',function(){
 			           // $load.removeClass('progressBar').addClass('progressBarNone');
 			           // $(".deviceback_opacity").hide();
 			        },
-			        dataFilter: function (data) {
+			       /* dataFilter: function (data) {
 			        	var resObj = $.parseJSON(data);
 			        	return resObj;
-			        },
+			        },*/
 			        success: callback,
 			       /* error: function (XMLHttpRequest, textStatus, errorThrown){
 			        	layer.alert(textStatus);

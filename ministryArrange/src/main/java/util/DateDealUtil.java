@@ -41,11 +41,12 @@ public class DateDealUtil {
 		 * @return week
 		 */
 		public static int getWeeks(Date date){  
-	        Calendar calendar = Calendar.getInstance();  
-	        calendar.setTime(date);  
-	        //第几周  
-	        int week = calendar.get(Calendar.WEEK_OF_MONTH);
-	        return week;
+			Calendar cal = Calendar.getInstance();  
+			//设置周一为一周的第一天  (默认是周日为第一天的)
+			cal.setFirstDayOfWeek(Calendar.MONDAY);
+			cal.setTime(date);  
+			int num = cal.get(Calendar.WEEK_OF_MONTH);
+			return num;
 		}
 		 
 	 //判断闰年  

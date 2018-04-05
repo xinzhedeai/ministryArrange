@@ -65,7 +65,7 @@ public class TestCalendar {
 	            
 	             
 	            System.err.println(serviceDateF);
-//	            System.err.println("第"+ week +"周");
+	            System.err.println("第"+ week +"周");
 	            int count = 1;
 	            switch(serviceDateCN){
 	            	case "星期四" :

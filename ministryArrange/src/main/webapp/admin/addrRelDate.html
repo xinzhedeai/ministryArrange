@@ -66,15 +66,15 @@
 			</div>
 		</form>
 		<xblock>
-			<button class="layui-btn layui-btn-primary" onclick="arrangeBtn()">
+			<button class="layui-btn layui-btn" onclick="setArrrangeStatus('Y')">
 				<i class="layui-icon">&#xe640;</i>派工
 			</button>
-			<button class="layui-btn layui-btn-danger" onclick="unArrangeBtn()">
+			<button class="layui-btn layui-btn-danger" onclick="setArrrangeStatus('N')">
 				<i class="layui-icon">&#xe608;</i>不派工
 			</button>
 			<button class="layui-btn layui-btn-normal" type="button" id="addrReldateBtn">堂点时间匹配</button>
 			<button class="layui-btn layui-btn-warm" type="button" id="serviceArrangeBtn">派工处理</button>
-			<button class="layui-btn layui-btn-small" onclick="javascript:location.replace(location.href);"
+			<button class="layui-btn layui-btn-small layui-btn-primary" onclick="javascript:location.replace(location.href);"
 		 		title="刷新">
 				<i class="layui-icon" style="line-height: 30px">ဂ</i>
 			</button>
@@ -88,6 +88,7 @@
     </script>
 	<script src="./lib/layui/layui.js" charset="utf-8"></script>
 	<script src="./js/x-layui.js" charset="utf-8"></script>
+	<script src="./js/util.js" charset="utf-8"></script>
 	<script>
 		layui.use(['upload', 'table', 'layer', 'laydate', 'jquery', 'form'], function () {
 				$ = layui.jquery;
@@ -137,11 +138,20 @@
 					});
 				});
 				//网格数据初始化
-				var tableIns = table.render({
+				window.tableIns = table.render({
 					id: 'serviceArrangeTable',
 					elem: '#serviceArrangeList',
 					url: '/userAction/getServiceList.action',
 					even: true,
+					height: 'full-50', //高度最大化减去差值
+				    page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+				        layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+				        //,curr: 5 //设定初始在第 5 页
+				        ,groups: 5 //只显示 1 个连续页码
+				        ,first: false //不显示首页
+				        ,last: false //不显示尾页
+				        
+				    },
 					cols: [[{
 						checkbox: true,
 						fixed: true
@@ -194,8 +204,18 @@
 				table.on('checkbox(demo)', function (obj) {
 					console.log(obj)
 				});
-			    
 		});
+		function setArrrangeStatus(type){
+			console.info($);
+			var checkStatus = table.checkStatus('serviceArrangeTable'); //test即为基础参数id对应的值
+			console.log(checkStatus.data) //获取选中行的数据
+			util.cusAjaxPost('/userAction/setArrangeStatus.action', {"type": type, "recs": JSON.stringify(checkStatus.data)}, function(res){
+				if(res.code === 0){
+					layer.alert(res.msg, {icon: 6});
+					tableIns.reload({});
+				}
+			});
+		}
 	</script>
 </body>
 
