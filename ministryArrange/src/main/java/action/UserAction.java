@@ -184,6 +184,7 @@ public class UserAction extends BaseAction{
 		}
 		return layObj;
 	}
+	//获取服侍派工列表数据
 	@ResponseBody
 	@RequestMapping("/getServiceList")
 	public LayUIGridObj getServiceList(HttpServletRequest req)throws Exception{

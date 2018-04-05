@@ -5,12 +5,10 @@ layui.use('jquery',function(){
 		return {
 			ajaxPostCus: function(url, reqParams, callback){
 				$.ajax({
-//			        async: _async,
 			        url: url,
 			        timeout:600000,//超时60秒
 			        data: reqParams, //json 对象
 			        dataType: 'json',
-			        //ifModified:true, 
 			        type: "POST",
 			        cache: false,
 			        complete:function(res){

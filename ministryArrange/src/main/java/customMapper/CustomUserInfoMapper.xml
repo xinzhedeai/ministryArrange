@@ -152,6 +152,23 @@
 		FROM
 			servicearrange a
 		LEFT JOIN `user` b ON b.id = a.user_id
+		<where> 
+			<if test="reuniondate != null and reuniondate != ''">
+			 	and a.reuniondate = #{reuniondate}
+		 	</if>
+		 	<if test="area != null and area != ''">
+			 	and a.area = #{area}
+		 	</if>
+		 	<if test="church != null and church != ''">
+			 	and a.church = #{church}
+		 	</if>
+		 	<if test="username != null and username != ''">
+			 	and b.username = #{username}
+		 	</if>
+		 	<if test="arrangestatus != null and arrangestatus != ''">
+			 	and a.arrangestatus = #{arrangestatus}
+		 	</if>
+		 </where> 
 	 </select>
 	 <select id="getAddrRelDateList"  parameterType="String" resultType="Map">
 		SELECT
