@@ -226,28 +226,26 @@ public class UserAction extends BaseAction{
 			//此标记用来判断，当一个同工分派完毕之后推出分派堂点循环
 			int arrangeCount = 0;
 			//定义前四周需要分配堂点记录数量(不能放到for里面，不然每次遍历是都会被初始化为最初的值，而不是--后的)
-			int j = forthArrangeRecs.size();
-			for(; j > (forthArrangeRecs.size() - ConvertUtil.long2int(userMap.get("serve_days_pre_forth")));){
-				 Map tempMapArrangeEec = forthArrangeRecs.get(j - 1);
-				  //分配完毕之后，退出该循序
-				 if(arrangeCount == ConvertUtil.long2int(userMap.get("serve_days_pre_forth"))){
-					 break;
-				 }
-				 if(!userMap.get("church").equals(tempMapArrangeEec.get("church"))){
+//			int j = forthArrangeRecs.size();
+			for(Map forthArrRec : forthArrangeRecs){
+				 //分配完毕之后，退出该循序
+				if(arrangeCount == ConvertUtil.long2int(userMap.get("serve_days_pre_forth"))){
+					break;
+				}
+				if(!userMap.get("church").equals(forthArrRec.get("church"))){
 					 //定义一个临时map,用来存储匹配的堂点信息
-					 Map tempMap = tempMapArrangeEec;
+					 Map tempMap = forthArrRec;
 					//将符合条件的同工分配给该堂点
 					 tempMap.put("user_id", userMap.get("id"));
 					//将符合条件的分配存到已分配结果list中
 					 arrangedRecs.add(tempMap);
 					//从原list中删除掉已分派完毕的堂点记录
-					 forthArrangeRecs.remove(tempMapArrangeEec);
+					 forthArrangeRecs.remove(forthArrRec);
 					 System.err.println("&&& 已分配的记录 &&&"+ tempMap);
 					//分配成功+1次
 					 arrangeCount ++;
 				 }
-				j--;//遍历下一条记录
-			  }
+			 }
 			 //当同工完全分配成功之后，将从原来的同工list移除
 			 if(arrangeCount == ConvertUtil.long2int(userMap.get("serve_days_pre_forth"))){
 				 forthUsers.remove(userMap);

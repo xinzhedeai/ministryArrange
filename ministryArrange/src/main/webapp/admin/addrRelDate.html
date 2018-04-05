@@ -21,6 +21,8 @@
 			style="line-height: 1.6em; margin-top: 3px; float: right"
 			href="javascript:location.replace(location.href);" title="刷新"><i
 			class="layui-icon" style="line-height: 30px">ဂ</i></a>
+			<button class="layui-btn" type="button" id="addrReldateBtn">堂点时间匹配</button>
+			<button class="layui-btn" type="button" id="serviceArrangeBtn">派工处理</button>
 	</div>
 	<div class="x-body">
 		<form class="layui-form x-center" action="" style="width: 80%">
@@ -41,8 +43,6 @@
 						<button class="layui-btn" lay-submit="" lay-filter="sreach">
 							<i class="layui-icon">&#xe615;</i>
 						</button>
-						<button class="layui-btn" type="button" id="addrReldateBtn">堂点时间匹配</button>
-						
 					</div>
 				</div>
 			</div>
@@ -55,7 +55,6 @@
 			onclick="admin_add('添加用户','admin-add.html','600','500')">
 			<i class="layui-icon">&#xe608;</i>添加
 		</button>
-		<button class="layui-btn" typ
 		</xblock>
 		<table id="serviceArrangeList"></table>
 	</div>
@@ -125,10 +124,15 @@
 									width : 80,
 									title : '堂点'
 								}, {
-									field : 'user_id',
-									width : 80,
+									field : 'username',
+									width : 100,
 									title : '派工同工'
-								}, {
+								},  {
+									field : 'fromChurch',
+									width : 130,
+									title : '同工所属堂点'
+								},
+								{
 									field : 'reuniondate',
 									width : 80,
 									title : '聚会日期'
@@ -139,16 +143,19 @@
 								}, {
 									field : 'arrangestatus',
 									width : 80,
-									title : '是否需要分配'
+									title : '是否需要分配',
+									templet: function(d){
+										return d.arrangestatus ? '是' : '否';
+									}
 								}, {
 									field : 'weekofdate',
 									width : 80,
 									title : '第几周'
-								}, {
+								}/* , {
 									field : 'option',
 									title : '操作',
 									toolbar : '#barDemo'
-								} ] ]
+								}  */] ]
 								/* <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span> */
 								,
 								page : true
@@ -212,59 +219,6 @@
 			x_admin_show(title, url, w, h);
 		}
 
-		/*停用*/
-		function admin_stop(obj, id) {
-			layer
-					.confirm(
-							'确认要停用吗？',
-							function(index) {
-								//发异步把用户状态进行更改
-								$(obj)
-										.parents("tr")
-										.find(".td-manage")
-										.prepend(
-												'<a style="text-decoration:none" onClick="admin_start(this,id)" href="javascript:;" title="启用"><i class="layui-icon">&#xe62f;</i></a>');
-								$(obj)
-										.parents("tr")
-										.find(".td-status")
-										.html(
-												'<span class="layui-btn layui-btn-disabled layui-btn-mini">已停用</span>');
-								$(obj).remove();
-								layer.msg('已停用!', {
-									icon : 5,
-									time : 1000
-								});
-							});
-		}
-
-		/*启用*/
-		function admin_start(obj, id) {
-			layer
-					.confirm(
-							'确认要启用吗？',
-							function(index) {
-								//发异步把用户状态进行更改
-								$(obj)
-										.parents("tr")
-										.find(".td-manage")
-										.prepend(
-												'<a style="text-decoration:none" onClick="admin_stop(this,id)" href="javascript:;" title="停用"><i class="layui-icon">&#xe601;</i></a>');
-								$(obj)
-										.parents("tr")
-										.find(".td-status")
-										.html(
-												'<span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span>');
-								$(obj).remove();
-								layer.msg('已启用!', {
-									icon : 6,
-									time : 1000
-								});
-							});
-		}
-		//编辑
-		function admin_edit(title, url, id, w, h) {
-			x_admin_show(title, url, w, h);
-		}
 	</script>
 </body>
 </html>
