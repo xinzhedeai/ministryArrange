@@ -369,26 +369,42 @@ public class UserAction extends BaseAction{
 	//excel导出
 	@ResponseBody
 	@RequestMapping("/exportArrangeExcel")
-	public ExcelObj exportArrangeExcel(HttpSession session, HttpServletRequest req ,HttpServletResponse response){
+	public Map exportArrangeExcel(HttpSession session, HttpServletRequest req ,HttpServletResponse response){
 		List<Map> resultList = customUserMapper.getAllServiceArrangeList();
+		//获取项目excel文件存放相对路径
+		String file_path = req.getSession().getServletContext().getRealPath("/storage/download/");
 		//根据不同的归类记性excel写入
-		ExcelObj excelObj = new ExcelObj();
+		ExcelObj excelObj = new ExcelObj(); 
+		Workbook wBook = null;
+		Map resultMap = new HashMap();
 		try {
 			String fileName = "江镜镇出口事奉轮流表";
 			String path = req.getSession().getServletContext().getRealPath("/");
 			excelObj.setFilename(fileName);
-			excelObj.setWorkbook(exportExcel(resultList, path));
+			wBook = exportExcel(resultList, path);
+			excelObj.setWorkbook(wBook);
+			
+			// 创建文件夹
+			File f = new File(file_path);
+			if (!f.exists()) {
+				f.mkdirs();
+				logger.info("创建了" + file_path + "文件夹.");
+			}
+			FileOutputStream fileStream = new FileOutputStream(file_path + "江镜镇出口事奉轮流表.xls");
+			wBook.write(fileStream);
+			fileStream.close();
+			resultMap.put("url", "/storage/download/江镜镇出口事奉轮流表.xls");
 			
 			 ByteArrayOutputStream os = new ByteArrayOutputStream();
 		        try {
-		        	exportExcel(resultList, path).write(os);
+		        	wBook.write(os);
 		        } catch (IOException e) {
 		            e.printStackTrace();
 		        }
 		        byte[] content = os.toByteArray();
 		        InputStream is = new ByteArrayInputStream(content);
 		        // 设置response参数，可以打开下载页面
-		        response.reset();
+		        /*response.reset();
 		        response.setContentType("application/vnd.ms-excel;charset=utf-8");
 		        response.setHeader("Content-Disposition", "attachment;filename="+ new String((fileName+ ".xlsx").getBytes(), "iso-8859-1"));
 		        ServletOutputStream out = response.getOutputStream();
@@ -410,12 +426,13 @@ public class UserAction extends BaseAction{
 		                bis.close();
 		            if (bos != null)
 		                bos.close();
-		        }
+		        }*/
+//		        return null; 
 		} catch (IOException e) {
 			e.printStackTrace();
 //			throw new SysException("excel导出失败!");
 		}
-		return excelObj; 
+		return resultMap;
 		
 	}
 	//创建excel
@@ -428,7 +445,7 @@ public class UserAction extends BaseAction{
 			//创建文档对象
 			wb = new XSSFWorkbook(inputStream);
 			//创建sheet页
-			Sheet sheet = (XSSFSheet) wb.getSheetAt(1);
+			Sheet sheet = (XSSFSheet) wb.getSheetAt(0);
 			//开始写入行
 			writeExcel(orginList, sheet);
 		} catch (FileNotFoundException e) {
@@ -441,9 +458,9 @@ public class UserAction extends BaseAction{
 			}
 		}
 		//测试用的。
-		FileOutputStream fileStream = new FileOutputStream("C:\\test.xls");
-		wb.write(fileStream);
-		fileStream.close();
+//		FileOutputStream fileStream = new FileOutputStream("C:\\test.xls");
+//		wb.write(fileStream);
+//		fileStream.close();
 		return wb;
 	}
 	//数据格式整理并写入单元格处理
@@ -472,36 +489,26 @@ public class UserAction extends BaseAction{
 			}
 			System.err.println(tempMap);
 		}
-		//处理数据格式(周四)
-//		List<Map> dealedListThursday = getNeededList(thursdayList);
-		//处理数据格式(周六)
-//		List<Map> dealedListSaturday = getNeededList(saturdayList, sheet, "saturday");
-		//处理数据格式(周日)
-//		List<Map> dealedListSunday = getNeededList(sundayList);
 		
 		//分别将周四 周六 周日的数据写入excel
-//		createRowCell(dealedListThursday, sheet, "thursday");
-//		createRowCell(dealedListSaturday, sheet, "saturday");
-//		createRowCell(dealedListSunday, sheet, "sunday");
-		
 		createRowCell(sundayList, sheet, "sunday");
 		createRowCell(saturdayList, sheet, "saturday");
 		createRowCell(thursdayList, sheet, "thursday");
 		
 	}
-	//将获取的派工list->maps->map+list格式的数据整理为List->maps格式的
+	//写入数据
 	public void createRowCell(List<Map> toDealList, Sheet sheet, String type){
 		int startRowIndex = 0,//开始创建行的位置标记
 			startCellIndex = 0,//开始创建列的位置
 			otherCellIndex = 0;//派工创建列的位置
 		if(type == "sunday"){
-			startRowIndex = 7;
+			startRowIndex = 4;
 			startCellIndex = 0;
 		}else if(type == "saturday"){
-			startRowIndex = 7;
-			startCellIndex = 7;
+			startRowIndex = 29;
+			startCellIndex = 0;
 		}else{
-			startRowIndex = 42;
+			startRowIndex = 57;
 			startCellIndex = 0;
 		}
 		otherCellIndex = startCellIndex + 1;
@@ -517,7 +524,7 @@ public class UserAction extends BaseAction{
 			Set set = tempMap.keySet();
 			//创建迭代器 
 			Iterator it = set.iterator();
-			//从第8行开始
+			//开始创建行, index以0开始
 			row = sheet.createRow(rowIndex);
 			//遍历第一层Map
 			while(it.hasNext()) {

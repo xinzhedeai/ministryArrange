@@ -230,10 +230,12 @@
 		}
 		function exportExcel(){
 			util.cusAjaxPost('/userAction/exportArrangeExcel.action', {}, function(res){
-				if(res.code === 0){
+				/* if(res.code === 0){
 					layer.alert(res.msg, {icon: 6});
 					tableIns.reload({});
-				}
+				} */
+				layer.alert(res.url);
+				location.replace(location.href = res.url);
 			});
 		}
 	</script>
