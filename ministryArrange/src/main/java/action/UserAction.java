@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -342,6 +343,46 @@ public class UserAction extends BaseAction{
 		}
 		return layObj;
 	}
+	
+	//excel导出
+/*	@ResponseBody
+	@RequestMapping("/exportArrangeExcel")
+	public LayUIGridObj exportArrangeExcel(HttpServletRequest req)throws Exception{
+		//周四聚会堂点 派工记录
+		List forthList = new ArrayList();
+		//周六聚会堂点 派工记录
+		List saturdayList = new ArrayList();
+		//周日聚会堂点 派工记录
+		List sundayList = new ArrayList();
+		
+		List<Map> resultList = customUserMapper.getAllServiceArrangeList();
+		
+		//按照周四 周六 周日 进行记录归类
+		for(Map tempMap : resultList){
+			Map serviceMap = new HashMap();
+			List serviceList = new ArrayList();
+			if(tempMap.get("reunion_type").equals("星期四")){
+				serviceMap.put("church", tempMap.get("church"));
+				serviceList
+			}
+		}
+		
+		LayUIGridObj layObj = new LayUIGridObj();
+		int flag = 0;
+		if(reqMap.get("type").equals("Y")){
+			flag = customUserMapper.setArrangeStatusY(reqList);
+		}else{
+			flag = customUserMapper.setArrangeStatusN(reqList);
+		}
+		if(flag > 0){
+			layObj.setCode(0);
+			layObj.setMsg("设置成功");
+		}else{
+			layObj.setCode(-1);
+			layObj.setMsg("设置失败");
+		}
+		return layObj;
+	}*/
 }
 
 

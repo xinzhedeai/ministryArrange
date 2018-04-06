@@ -32,4 +32,6 @@ public interface CustomUserInfoMapper {
 	int setArrangeStatusY(List reqList);
 
 	int setArrangeStatusN(List reqList);
+
+	List<Map> getAllServiceArrangeList();
 }
