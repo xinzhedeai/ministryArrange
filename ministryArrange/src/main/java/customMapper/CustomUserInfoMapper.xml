@@ -264,18 +264,34 @@
 	        #{item.id}
 	    </foreach>	
     </update>
+    <resultMap id="getServiceByChurch" type="HashMap">
+	   <id property="address_id" column="address_id"/>
+	  <!--  <result property="address_id" column="address_id"/> -->
+	   <result property="church" column="church"/>
+	    <result property="reunion_type" column="reunion_type"/>
+	    <collection property="arrangeRecs" ofType="Map" javaType="ArrayList">  
+            <id property="id" column="id"/>    
+            <result property="user_id" column="user_id"/>  
+            <result property="user_name" column="user_name"/>  
+            <result property="reuniondate" column="reuniondate"/>
+            <result property="reuniondateCN" column="reuniondateCN"/>  
+            <result property="weekofdate" column="weekofdate"/>    
+        </collection>  
+	</resultMap>
     <!-- 导出excel所需要的数据 -->
-   	 <select id="getAllServiceArrangeList" resultType="Map">
+   	 <select id="getAllServiceArrangeList" resultMap="getServiceByChurch">
 	SELECT
 			a.id,
 			a.area,
 			a.church,
-			b.username,
+			IFNULL(a.user_id, ''),
+			IFNULL(b.username, ''),
 			CONCAT(b.area, '**', b.church) as fromChurch, <!-- 同工所属堂点 -->
 			a.reuniondate,
 			a.reuniondateCN,
 			a.arrangestatus,
-			
+			a.address_id,
+			a.reunion_type,
 			case a.weekofdate 
 			WHEN '1' THEN '第一周'
 			WHEN '2' THEN '第二周'
@@ -287,6 +303,7 @@
 		FROM
 			servicearrange a
 		LEFT JOIN `user` b ON b.id = a.user_id
+		<!-- GROUP BY a.address_id -->
 	 </select>
     
 </mapper>

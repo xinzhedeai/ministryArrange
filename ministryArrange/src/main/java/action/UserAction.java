@@ -1,18 +1,38 @@
 package action;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +46,14 @@ import normalMapper.UserMapper;
 import normalPo.User;
 import normalPo.UserExample;
 import pageModel.EasyUIGridObj;
+import pageModel.ExcelObj;
 import pageModel.JsonResult;
 import pageModel.LayUIGridObj;
 import service.UserService;
 import util.ConvertUtil;
 import util.DateDealUtil;
 import util.MSG_CONST;
+import util.POIUtil;
 import util.PageUtil;
 import util.SpringUtils;
 @SuppressWarnings({"rawtypes"})
@@ -345,44 +367,197 @@ public class UserAction extends BaseAction{
 	}
 	
 	//excel导出
-/*	@ResponseBody
+	@ResponseBody
 	@RequestMapping("/exportArrangeExcel")
-	public LayUIGridObj exportArrangeExcel(HttpServletRequest req)throws Exception{
-		//周四聚会堂点 派工记录
-		List forthList = new ArrayList();
-		//周六聚会堂点 派工记录
-		List saturdayList = new ArrayList();
-		//周日聚会堂点 派工记录
-		List sundayList = new ArrayList();
-		
+	public LayUIGridObj exportArrangeExcel(HttpSession session, HttpServletRequest req ,HttpServletResponse response)throws Exception{
 		List<Map> resultList = customUserMapper.getAllServiceArrangeList();
-		
-		//按照周四 周六 周日 进行记录归类
-		for(Map tempMap : resultList){
-			Map serviceMap = new HashMap();
-			List serviceList = new ArrayList();
-			if(tempMap.get("reunion_type").equals("星期四")){
-				serviceMap.put("church", tempMap.get("church"));
-				serviceList
+		//根据不同的归类记性excel写入
+		ExcelObj excelObj = new ExcelObj();
+		try {
+			String fileName = "江镜镇出口事奉轮流表";
+			String path = req.getSession().getServletContext().getRealPath("/");
+			excelObj.setFilename(fileName);
+			
+			excelObj.setWorkbook(exportExcel(resultList, path));
+			
+			 ByteArrayOutputStream os = new ByteArrayOutputStream();
+		        try {
+		        	exportExcel(resultList, path).write(os);
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        }
+		        byte[] content = os.toByteArray();
+		        InputStream is = new ByteArrayInputStream(content);
+		        // 设置response参数，可以打开下载页面
+		        response.reset();
+		        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+		        response.setHeader("Content-Disposition", "attachment;filename="+ new String((fileName+ ".xlsx").getBytes(), "iso-8859-1"));
+		        ServletOutputStream out = response.getOutputStream();
+		        BufferedInputStream bis = null;
+		        BufferedOutputStream bos = null;
+		        try {
+		            bis = new BufferedInputStream(is);
+		            bos = new BufferedOutputStream(out);
+		            byte[] buff = new byte[2048];
+		            int bytesRead;
+		            // Simple read/write loop.
+		            while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
+		                bos.write(buff, 0, bytesRead);
+		            }
+		        } catch (final IOException e) {
+		            throw e;
+		        } finally {
+		            if (bis != null)
+		                bis.close();
+		            if (bos != null)
+		                bos.close();
+		        }
+		        return null;
+		} catch (IOException e) {
+			throw new SysException("excel导出失败!");
+		} 
+	//	return excelObj;
+	}
+	//创建excel
+	private Workbook exportExcel(List<Map> orginList, String path) throws IOException {
+		InputStream inputStream = null;
+		Workbook wb = null;
+		try {
+			//创建输入流
+			inputStream = new FileInputStream(new File(path + "/storage/template/", "arrangeServiceExcel.xlsx"));
+			//创建文档对象
+			wb = new XSSFWorkbook(inputStream);
+			//创建sheet页
+			Sheet sheet = (XSSFSheet) wb.getSheetAt(0);
+			//开始写入行
+			writeExcel(orginList, sheet);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			if(inputStream != null) {
+				inputStream.close();
 			}
 		}
+		//测试用的。
+		FileOutputStream fileStream = new FileOutputStream("E:\\test.xls");
+		wb.write(fileStream);
+		fileStream.close();
+		return wb;
+	}
+	//数据格式整理并写入单元格处理
+	public void writeExcel(List<Map> resultList, Sheet sheet){
+		//周四聚会堂点 派工记录
+		List<Map> thursdayList = new ArrayList();
+		//周六聚会堂点 派工记录
+		List<Map> saturdayList = new ArrayList();
+		//周日聚会堂点 派工记录
+		List<Map> sundayList = new ArrayList();
+		//按照周四 周六 周日 进行记录归类标记
+		String flag = "";
+		//派工记录归类处理开始
+		for(Map tempMap : resultList){
+			flag = (String) tempMap.get("reunion_type");
+			switch(flag){
+				case "星期四":
+					thursdayList.add(tempMap);
+					break;
+				case "星期六":
+					saturdayList.add(tempMap);
+					break;
+				case "星期日":
+					sundayList.add(tempMap);
+					break;
+			}
+			System.err.println(tempMap);
+		}
+		//处理数据格式(周四)
+//		List<Map> dealedListThursday = getNeededList(thursdayList);
+		//处理数据格式(周六)
+		List<Map> dealedListSaturday = getNeededList(saturdayList);
+		//处理数据格式(周日)
+//		List<Map> dealedListSunday = getNeededList(sundayList);
 		
-		LayUIGridObj layObj = new LayUIGridObj();
-		int flag = 0;
-		if(reqMap.get("type").equals("Y")){
-			flag = customUserMapper.setArrangeStatusY(reqList);
-		}else{
-			flag = customUserMapper.setArrangeStatusN(reqList);
+		//分别将周四 周六 周日的数据写入excel
+//		createRowCell(dealedListThursday, sheet, "thursday");
+		createRowCell(dealedListSaturday, sheet, "saturday");
+//		createRowCell(dealedListSunday, sheet, "sunday");
+		
+	}
+	//将获取的派工list->maps->map+list格式的数据整理为List->maps格式的
+	public List getNeededList(List<Map> toDealList){
+		//存放某类需要处理的集合数据（周日 周六 周四等）
+		List<Map> neededListSheet = new ArrayList();
+		//存放每行符合格式的数据
+		List<Map> neededListRow = new ArrayList();
+		//对堂点和派工人员进行拆分
+		for(Map tempMap : toDealList){
+			//存放每行符合格式的数据Map格式
+			Map tempNeededMap = new HashMap();
+			//获取行数据中每一列的键
+			Set set = tempMap.keySet();
+			//创建迭代器 
+			Iterator it = set.iterator();
+			//遍历Map
+			while(it.hasNext()) {
+				 Object itrKey = it.next();
+				 if("church".equals(itrKey)){
+					 //将堂点存到行list中
+					 tempNeededMap.put(itrKey, tempMap.get(itrKey));
+					 neededListRow.add(tempNeededMap);
+				 }else if("arrangeRecs".equals(itrKey)){
+					 List<Map> tempList = (List<Map>) tempMap.get(itrKey);
+					 for(Map arrangeRec : tempList){
+						 //将派工人员分别存入行Map中
+						 tempNeededMap.putAll(arrangeRec);
+					 }
+				 }
+			}
+			//存放处理之后的行数据
+			neededListSheet.add(tempNeededMap);
 		}
-		if(flag > 0){
-			layObj.setCode(0);
-			layObj.setMsg("设置成功");
-		}else{
-			layObj.setCode(-1);
-			layObj.setMsg("设置失败");
+		return neededListSheet;
+	}
+	
+	/**
+	 * 单纯的写入单元格数据
+	 * @param dealedList
+	 * @param sheet
+	 * @param type 根据周四 周六 周日分别进行写入处理
+	 */
+	public void createRowCell(List<Map> dealedList, Sheet sheet, String type){
+		/*switch(type){
+			case "thursday":
+				
+		}*/
+		
+		//默认先处理一个模块的服侍数据
+		Row row = null;
+		//从第四行开始创建写入数据
+		int rowIndex = 7;
+		//k代表行的索引值
+		for(int i = 0; i < dealedList.size(); i++) {
+			//从第二行开始
+			row = sheet.createRow(rowIndex);
+			//获取行数据
+			Map map = dealedList.get(i);
+			//获取行数据中每一列的键
+			Set set = map.keySet();
+			//创建迭代器 
+			Iterator it = set.iterator();
+			int cellIndex = 0;
+			while(it.hasNext()) {
+				 Object itrKey = it.next();
+				 row.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_STRING); 
+				 Object value = map.get(itrKey);
+				 POIUtil.setCellValue(value, row.getCell(cellIndex));
+				 cellIndex++;
+			}
+			rowIndex ++;
+		//	logger.debug("列数"+l+"行数"+index);
 		}
-		return layObj;
-	}*/
+	}
 }
 
 
