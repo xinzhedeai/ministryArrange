@@ -101,9 +101,10 @@
 	 </select>
 	 <select id="getAddrByType"  parameterType="Map" resultType="Map">
 		SELECT
-			area
+			id as address_id
+			,area
 			,church
-			, case reunion_type WHEN '0' THEN '星期四'
+			,case reunion_type WHEN '0' THEN '星期四'
 			WHEN '1' THEN '星期六'
 			ELSE '星期日'
 			END AS reunion_type
@@ -115,6 +116,8 @@
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			area,
 			church,
+			address_id,
+			reunion_type,
 			reuniondate,
 			reuniondateCN,
 			weekofdate
@@ -123,6 +126,8 @@
 	  		<trim prefix="(" suffix=")" suffixOverrides=",">
 		   		#{item.area},
 		   		#{item.church},
+		   		#{item.address_id},
+		   		#{item.reunion_type},
 		   		#{item.reunion_date},
 		   		#{item.reunion_dateCN},
 		   		#{item.weekofdate}
@@ -140,7 +145,8 @@
 			a.reuniondate,
 			a.reuniondateCN,
 			a.arrangestatus,
-			
+			a.address_id,
+			a.reunion_type,
 			case a.weekofdate 
 			WHEN '1' THEN '第一周'
 			WHEN '2' THEN '第二周'
@@ -258,5 +264,29 @@
 	        #{item.id}
 	    </foreach>	
     </update>
+    <!-- 导出excel所需要的数据 -->
+   	 <select id="getAllServiceArrangeList" resultType="Map">
+	SELECT
+			a.id,
+			a.area,
+			a.church,
+			b.username,
+			CONCAT(b.area, '**', b.church) as fromChurch, <!-- 同工所属堂点 -->
+			a.reuniondate,
+			a.reuniondateCN,
+			a.arrangestatus,
+			
+			case a.weekofdate 
+			WHEN '1' THEN '第一周'
+			WHEN '2' THEN '第二周'
+			WHEN '3' THEN '第三周'
+			WHEN '4' THEN '第四周'
+			WHEN '5' THEN '第五周'
+			<!-- ELSE '星期日' -->
+			END AS weekofdate
+		FROM
+			servicearrange a
+		LEFT JOIN `user` b ON b.id = a.user_id
+	 </select>
     
 </mapper>
