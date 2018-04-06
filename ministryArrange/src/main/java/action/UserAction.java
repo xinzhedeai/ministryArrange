@@ -484,17 +484,33 @@ public class UserAction extends BaseAction{
 //		createRowCell(dealedListSaturday, sheet, "saturday");
 //		createRowCell(dealedListSunday, sheet, "sunday");
 		
-		getNeededList(saturdayList, sheet, "saturday");
+		createRowCell(sundayList, sheet, "sunday");
+		createRowCell(saturdayList, sheet, "saturday");
+		createRowCell(thursdayList, sheet, "thursday");
 		
 	}
 	//将获取的派工list->maps->map+list格式的数据整理为List->maps格式的
-	public void getNeededList(List<Map> toDealList, Sheet sheet, String type){
+	public void createRowCell(List<Map> toDealList, Sheet sheet, String type){
+		int startRowIndex = 0,//开始创建行的位置标记
+			startCellIndex = 0,//开始创建列的位置
+			otherCellIndex = 0;//派工创建列的位置
+		if(type == "sunday"){
+			startRowIndex = 7;
+			startCellIndex = 0;
+		}else if(type == "saturday"){
+			startRowIndex = 7;
+			startCellIndex = 7;
+		}else{
+			startRowIndex = 42;
+			startCellIndex = 0;
+		}
+		otherCellIndex = startCellIndex + 1;
 		//默认先处理一个模块的服侍数据
 		Row row = null;
 		//创建标题行，写入日期
-		Row titleRow = sheet.createRow(7);
+		Row titleRow = sheet.createRow(startRowIndex - 1);
 		//从第四行开始创建写入数据
-		int rowIndex = 8;
+		int rowIndex = startRowIndex;
 		//遍历数据集合每一个tempMap都是一行数据
 		for(Map tempMap : toDealList){
 			//获取行数据中每一列的键
@@ -507,12 +523,12 @@ public class UserAction extends BaseAction{
 			while(it.hasNext()) {
 				 Object itrKey = it.next();
 				 if("church".equals(itrKey)){//将堂点写到第一个单元格
-					 row.createCell(0).setCellType(HSSFCell.CELL_TYPE_STRING); 
+					 row.createCell(startCellIndex).setCellType(HSSFCell.CELL_TYPE_STRING); 
 					 Object value = tempMap.get(itrKey);
-					 POIUtil.setCellValue(value, row.getCell(0));
+					 POIUtil.setCellValue(value, row.getCell(startCellIndex));
 				 }else if("arrangeRecs".equals(itrKey)){//将同工数据写入第二个及以后的单元格
 					 List<Map> tempList = (List<Map>) tempMap.get(itrKey);
-					 int cellIndex = 1;//从第二列开始写入
+					 int cellIndex = startCellIndex + 1;//从初始创建列的后一列开始写入
 					 for(Map arrangeRec : tempList){
 						//获取行数据中每一列的键
 						Set set1 = arrangeRec.keySet();
@@ -524,7 +540,7 @@ public class UserAction extends BaseAction{
 							 Object itrKey1 = it1.next();
 							if(itrKey1.equals("user_name")){
 								cellStr = (String) arrangeRec.get(itrKey1);
-							}else if(itrKey1.equals("reuniondate") && rowIndex == 8){//获取派工日期 获取一行之后不会再获取
+							}else if(itrKey1.equals("reuniondate") && rowIndex == startRowIndex){//获取派工日期 获取一行之后不会再获取
 								//获取派工时间
 								arrangeDate = (Date) arrangeRec.get(itrKey1);
 							}
@@ -532,7 +548,7 @@ public class UserAction extends BaseAction{
 						 row.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_STRING); 
 						 Object value = cellStr;
 						 POIUtil.setCellValue(value, row.getCell(cellIndex));
-						if(rowIndex == 8){//只设置一遍
+						if(rowIndex == startRowIndex){//只设置一遍
 							 titleRow.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_BLANK); 
 							 Object titleRowvalue = arrangeDate;
 							 POIUtil.setCellValue(titleRowvalue, titleRow.getCell(cellIndex));
@@ -552,38 +568,38 @@ public class UserAction extends BaseAction{
 	 * @param sheet
 	 * @param type 根据周四 周六 周日分别进行写入处理
 	 */
-	public void createRowCell(List<Map> dealedList, Sheet sheet, String type){
-		/*switch(type){
-			case "thursday":
-				
-		}*/
-		
-		//默认先处理一个模块的服侍数据
-		Row row = null;
-		//从第四行开始创建写入数据
-		int rowIndex = 7;
-		//k代表行的索引值
-		for(int i = 0; i < dealedList.size(); i++) {
-			//从第二行开始
-			row = sheet.createRow(rowIndex);
-			//获取行数据
-			Map map = dealedList.get(i);
-			//获取行数据中每一列的键
-			Set set = map.keySet();
-			//创建迭代器 
-			Iterator it = set.iterator();
-			int cellIndex = 0;
-			while(it.hasNext()) {
-				 Object itrKey = it.next();
-				 row.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_STRING); 
-				 Object value = map.get(itrKey);
-				 POIUtil.setCellValue(value, row.getCell(cellIndex));
-				 cellIndex++;
-			}
-			rowIndex ++;
-		//	logger.debug("列数"+l+"行数"+index);
-		}
-	}
+//	public void createRowCell(List<Map> dealedList, Sheet sheet, String type){
+//		/*switch(type){
+//			case "thursday":
+//				
+//		}*/
+//		
+//		//默认先处理一个模块的服侍数据
+//		Row row = null;
+//		//从第四行开始创建写入数据
+//		int rowIndex = 7;
+//		//k代表行的索引值
+//		for(int i = 0; i < dealedList.size(); i++) {
+//			//从第二行开始
+//			row = sheet.createRow(rowIndex);
+//			//获取行数据
+//			Map map = dealedList.get(i);
+//			//获取行数据中每一列的键
+//			Set set = map.keySet();
+//			//创建迭代器 
+//			Iterator it = set.iterator();
+//			int cellIndex = 0;
+//			while(it.hasNext()) {
+//				 Object itrKey = it.next();
+//				 row.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_STRING); 
+//				 Object value = map.get(itrKey);
+//				 POIUtil.setCellValue(value, row.getCell(cellIndex));
+//				 cellIndex++;
+//			}
+//			rowIndex ++;
+//		//	logger.debug("列数"+l+"行数"+index);
+//		}
+//	}
 }
 
 
