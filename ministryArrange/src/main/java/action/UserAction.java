@@ -369,7 +369,7 @@ public class UserAction extends BaseAction{
 	//excel导出
 	@ResponseBody
 	@RequestMapping("/exportArrangeExcel")
-	public LayUIGridObj exportArrangeExcel(HttpSession session, HttpServletRequest req ,HttpServletResponse response)throws Exception{
+	public ExcelObj exportArrangeExcel(HttpSession session, HttpServletRequest req ,HttpServletResponse response){
 		List<Map> resultList = customUserMapper.getAllServiceArrangeList();
 		//根据不同的归类记性excel写入
 		ExcelObj excelObj = new ExcelObj();
@@ -377,7 +377,6 @@ public class UserAction extends BaseAction{
 			String fileName = "江镜镇出口事奉轮流表";
 			String path = req.getSession().getServletContext().getRealPath("/");
 			excelObj.setFilename(fileName);
-			
 			excelObj.setWorkbook(exportExcel(resultList, path));
 			
 			 ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -405,18 +404,19 @@ public class UserAction extends BaseAction{
 		                bos.write(buff, 0, bytesRead);
 		            }
 		        } catch (final IOException e) {
-		            throw e;
+		            e.printStackTrace();
 		        } finally {
 		            if (bis != null)
 		                bis.close();
 		            if (bos != null)
 		                bos.close();
 		        }
-		        return null;
 		} catch (IOException e) {
-			throw new SysException("excel导出失败!");
-		} 
-	//	return excelObj;
+			e.printStackTrace();
+//			throw new SysException("excel导出失败!");
+		}
+		return excelObj; 
+		
 	}
 	//创建excel
 	private Workbook exportExcel(List<Map> orginList, String path) throws IOException {
@@ -428,7 +428,7 @@ public class UserAction extends BaseAction{
 			//创建文档对象
 			wb = new XSSFWorkbook(inputStream);
 			//创建sheet页
-			Sheet sheet = (XSSFSheet) wb.getSheetAt(0);
+			Sheet sheet = (XSSFSheet) wb.getSheetAt(1);
 			//开始写入行
 			writeExcel(orginList, sheet);
 		} catch (FileNotFoundException e) {
@@ -441,7 +441,7 @@ public class UserAction extends BaseAction{
 			}
 		}
 		//测试用的。
-		FileOutputStream fileStream = new FileOutputStream("E:\\test.xls");
+		FileOutputStream fileStream = new FileOutputStream("C:\\test.xls");
 		wb.write(fileStream);
 		fileStream.close();
 		return wb;
@@ -475,49 +475,75 @@ public class UserAction extends BaseAction{
 		//处理数据格式(周四)
 //		List<Map> dealedListThursday = getNeededList(thursdayList);
 		//处理数据格式(周六)
-		List<Map> dealedListSaturday = getNeededList(saturdayList);
+//		List<Map> dealedListSaturday = getNeededList(saturdayList, sheet, "saturday");
 		//处理数据格式(周日)
 //		List<Map> dealedListSunday = getNeededList(sundayList);
 		
 		//分别将周四 周六 周日的数据写入excel
 //		createRowCell(dealedListThursday, sheet, "thursday");
-		createRowCell(dealedListSaturday, sheet, "saturday");
+//		createRowCell(dealedListSaturday, sheet, "saturday");
 //		createRowCell(dealedListSunday, sheet, "sunday");
+		
+		getNeededList(saturdayList, sheet, "saturday");
 		
 	}
 	//将获取的派工list->maps->map+list格式的数据整理为List->maps格式的
-	public List getNeededList(List<Map> toDealList){
-		//存放某类需要处理的集合数据（周日 周六 周四等）
-		List<Map> neededListSheet = new ArrayList();
-		//存放每行符合格式的数据
-		List<Map> neededListRow = new ArrayList();
-		//对堂点和派工人员进行拆分
+	public void getNeededList(List<Map> toDealList, Sheet sheet, String type){
+		//默认先处理一个模块的服侍数据
+		Row row = null;
+		//创建标题行，写入日期
+		Row titleRow = sheet.createRow(7);
+		//从第四行开始创建写入数据
+		int rowIndex = 8;
+		//遍历数据集合每一个tempMap都是一行数据
 		for(Map tempMap : toDealList){
-			//存放每行符合格式的数据Map格式
-			Map tempNeededMap = new HashMap();
 			//获取行数据中每一列的键
 			Set set = tempMap.keySet();
 			//创建迭代器 
 			Iterator it = set.iterator();
-			//遍历Map
+			//从第8行开始
+			row = sheet.createRow(rowIndex);
+			//遍历第一层Map
 			while(it.hasNext()) {
 				 Object itrKey = it.next();
-				 if("church".equals(itrKey)){
-					 //将堂点存到行list中
-					 tempNeededMap.put(itrKey, tempMap.get(itrKey));
-					 neededListRow.add(tempNeededMap);
-				 }else if("arrangeRecs".equals(itrKey)){
+				 if("church".equals(itrKey)){//将堂点写到第一个单元格
+					 row.createCell(0).setCellType(HSSFCell.CELL_TYPE_STRING); 
+					 Object value = tempMap.get(itrKey);
+					 POIUtil.setCellValue(value, row.getCell(0));
+				 }else if("arrangeRecs".equals(itrKey)){//将同工数据写入第二个及以后的单元格
 					 List<Map> tempList = (List<Map>) tempMap.get(itrKey);
+					 int cellIndex = 1;//从第二列开始写入
 					 for(Map arrangeRec : tempList){
-						 //将派工人员分别存入行Map中
-						 tempNeededMap.putAll(arrangeRec);
+						//获取行数据中每一列的键
+						Set set1 = arrangeRec.keySet();
+						//创建迭代器 
+						Iterator it1 = set1.iterator();
+						 Date arrangeDate = new Date();
+						 String cellStr = "";
+						while(it1.hasNext()) {
+							 Object itrKey1 = it1.next();
+							if(itrKey1.equals("user_name")){
+								cellStr = (String) arrangeRec.get(itrKey1);
+							}else if(itrKey1.equals("reuniondate") && rowIndex == 8){//获取派工日期 获取一行之后不会再获取
+								//获取派工时间
+								arrangeDate = (Date) arrangeRec.get(itrKey1);
+							}
+						}
+						 row.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_STRING); 
+						 Object value = cellStr;
+						 POIUtil.setCellValue(value, row.getCell(cellIndex));
+						if(rowIndex == 8){//只设置一遍
+							 titleRow.createCell(cellIndex).setCellType(HSSFCell.CELL_TYPE_BLANK); 
+							 Object titleRowvalue = arrangeDate;
+							 POIUtil.setCellValue(titleRowvalue, titleRow.getCell(cellIndex));
+						}
+						 cellIndex ++;
+						logger.debug("列数"+ cellIndex +"行数"+ rowIndex);
 					 }
 				 }
 			}
-			//存放处理之后的行数据
-			neededListSheet.add(tempNeededMap);
+			rowIndex ++;
 		}
-		return neededListSheet;
 	}
 	
 	/**

@@ -284,8 +284,8 @@
 			a.id,
 			a.area,
 			a.church,
-			IFNULL(a.user_id, ''),
-			IFNULL(b.username, ''),
+			IFNULL(a.user_id, '') as user_id,
+			IFNULL(b.username, '') as user_name,
 			CONCAT(b.area, '**', b.church) as fromChurch, <!-- 同工所属堂点 -->
 			a.reuniondate,
 			a.reuniondateCN,
