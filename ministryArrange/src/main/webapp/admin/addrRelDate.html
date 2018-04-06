@@ -74,6 +74,8 @@
 			</button>
 			<button class="layui-btn layui-btn-normal" type="button" id="addrReldateBtn">堂点时间匹配</button>
 			<button class="layui-btn layui-btn-warm" type="button" id="serviceArrangeBtn">派工处理</button>
+			
+			<button class="layui-btn layui-btn-normal" type="button" onclick="exportExcel();">事工安排表导出</button>
 			<button class="layui-btn layui-btn-small layui-btn-primary" onclick="javascript:location.replace(location.href);"
 		 		title="刷新">
 				<i class="layui-icon" style="line-height: 30px">ဂ</i>
@@ -220,6 +222,14 @@
 			var checkStatus = table.checkStatus('serviceArrangeTable'); //test即为基础参数id对应的值
 			console.log(checkStatus.data) //获取选中行的数据
 			util.cusAjaxPost('/userAction/setArrangeStatus.action', {"type": type, "recs": JSON.stringify(checkStatus.data)}, function(res){
+				if(res.code === 0){
+					layer.alert(res.msg, {icon: 6});
+					tableIns.reload({});
+				}
+			});
+		}
+		function exportExcel(){
+			util.cusAjaxPost('/userAction/exportArrangeExcel.action', {}, function(res){
 				if(res.code === 0){
 					layer.alert(res.msg, {icon: 6});
 					tableIns.reload({});
