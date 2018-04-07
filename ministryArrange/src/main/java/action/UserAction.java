@@ -286,17 +286,33 @@ public class UserAction extends BaseAction{
 					break;
 				}
 				if(!userMap.get("church").equals(forthArrRec.get("church"))){
-					 //定义一个临时map,用来存储匹配的堂点信息
-					 Map tempMap = forthArrRec;
-					//将符合条件的同工分配给该堂点
-					 tempMap.put("user_id", userMap.get("id"));
-					//将符合条件的分配存到已分配结果list中
-					 arrangedRecs.add(tempMap);
-					//从原list中删除掉已分派完毕的堂点记录
-					 forthArrangeRecs.remove(forthArrRec);
-//					 System.err.println("&&& 已分配的记录 &&&"+ tempMap);
-					//分配成功+1次
-					 arrangeCount ++;
+					boolean isExisted = false;//默认值为false，该周尚未分配，可以再次分配
+					/**
+					 * 遍历已分配记录，找到了该同工的匹配记录
+					 * 在已有的记录中,如果服侍的周数与当前将要分配的记录的服侍周数相同
+					 * 则跳过此次分配处理
+					 */
+					for(Map rec : arrangedRecs){
+						if(rec.get("user_id") == userMap.get("id")){
+							if(rec.get("weekofdate").equals(forthArrRec.get("weekofdate"))){
+								isExisted = true;
+								break;
+							}
+						}
+					}
+					if(!isExisted){
+						//定义一个临时map,用来存储匹配的堂点信息
+						 Map tempMap = forthArrRec;
+						//将符合条件的同工分配给该堂点
+						 tempMap.put("user_id", userMap.get("id"));
+						//将符合条件的分配存到已分配结果list中
+ 						 arrangedRecs.add(tempMap);
+						//从原list中删除掉已分派完毕的堂点记录
+						 forthArrangeRecs.remove(forthArrRec);
+//						 System.err.println("&&& 已分配的记录 &&&"+ tempMap);
+						//分配成功+1次
+						 arrangeCount ++;
+					}
 				 }
 			 }
 			 //当同工完全分配成功之后，将从原来的同工list移除
@@ -497,21 +513,28 @@ public class UserAction extends BaseAction{
 		List<Map> sundayList = new ArrayList();
 		//按照周四 周六 周日 进行记录归类标记
 		String flag = "";
+		int ii = 0, jj = 0, kk = 0;
 		//派工记录归类处理开始
 		for(Map tempMap : resultList){
 			flag = (String) tempMap.get("reunion_type");
 			switch(flag){
 				case "星期四":
 					thursdayList.add(tempMap);
+					ii++;
 					break;
 				case "星期六":
 					saturdayList.add(tempMap);
+					jj++;
 					break;
 				case "星期日":
 					sundayList.add(tempMap);
+					kk++;
 					break;
 			}
 			System.err.println(tempMap);
+			System.out.println("周四记录个数"+ ii);
+			System.out.println("周六记录个数"+ jj);
+			System.out.println("周日记录个数"+ kk);
 		}
 		
 		//分别将周四 周六 周日的数据写入excel

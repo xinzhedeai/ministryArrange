@@ -185,7 +185,14 @@
 			,reuniondate
 			,reuniondateCN
 			,arrangestatus
-			,weekofdate
+			,case weekofdate 
+				WHEN '1' THEN '第一周'
+				WHEN '2' THEN '第二周'
+				WHEN '3' THEN '第三周'
+				WHEN '4' THEN '第四周'
+				WHEN '5' THEN '第五周'
+				<!-- ELSE '星期日' -->
+			 END AS weekofdate
 			,order_num
 		FROM
 			servicearrange
