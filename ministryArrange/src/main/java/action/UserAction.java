@@ -53,6 +53,7 @@ import service.UserService;
 import util.ConvertUtil;
 import util.DateDealUtil;
 import util.MSG_CONST;
+import util.MathUtilCustom;
 import util.POIUtil;
 import util.PageUtil;
 import util.SpringUtils;
@@ -168,7 +169,7 @@ public class UserAction extends BaseAction{
 		//获取堂点列表
 		List<Map> addrs = customUserMapper.getAddrByType();
 		//获取制定月份的周日、周六和周四对应的日期
-		String[] s = {"2018-03"};//默认先指定个日期
+		String[] s = {"2018-04"};//默认先指定个日期
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdf2 = new SimpleDateFormat("EEE");//格式-星期几
 		List<Map> dates = new ArrayList();
@@ -185,7 +186,9 @@ public class UserAction extends BaseAction{
 		         dates.add(tempMap);
 			 }
 		}
+		//堂点日期关系映射集合
 		List<Map> addrRelDate = new ArrayList();
+		
 		//获取日期集合之后，开始分配
 		for(Map addr : addrs){
 			for(Map date : dates){
@@ -195,14 +198,35 @@ public class UserAction extends BaseAction{
 					temAddrDateMap.putAll(date);
 					addrRelDate.add(temAddrDateMap);
 					System.err.println(temAddrDateMap);
+					
 				}
 			}
 		}
 		//时间分配完成，向数据库插入记录
 		
 		if(customUserMapper.insertAddrDate(addrRelDate) > 0){
-			layObj.setCode(0);
-			layObj.setMsg("时间分配成功");
+			//更新堂点时间匹配记录的顺序
+			//1获取堂点时间匹陪记录
+			List<Map> addrDateRecs = customUserMapper.getAddrRelDateList("");
+			//2获取集合随机顺序
+			int[] randomOrder = MathUtilCustom.getRandom(addrDateRecs.size());
+			//3随机数集合初始索引
+			int startIndex = 0;
+			//4定义需要更新的带有随机顺序的记录数
+			List<Map> toUpdateRecs = new ArrayList();
+			//4记录顺序映射
+			for(Map rec : addrDateRecs){
+				rec.put("order_num", randomOrder[startIndex]);
+				toUpdateRecs.add(rec);
+				customUserMapper.updateAddrDate(rec); 
+				System.out.println(rec);
+				System.err.println(startIndex);
+				startIndex ++;
+			}
+			if(startIndex == addrDateRecs.size()){
+				layObj.setCode(0);
+				layObj.setMsg("时间分配成功");
+			}
 		}else{
 			layObj.setCode(-1);
 			layObj.setMsg("时间分配失败");
@@ -441,7 +465,7 @@ public class UserAction extends BaseAction{
 		Workbook wb = null;
 		try {
 			//创建输入流
-			inputStream = new FileInputStream(new File(path + "/storage/template/", "arrangeServiceExcel.xlsx"));
+			inputStream = new FileInputStream(new File(path + "/storage/template/", "江镜镇出口事奉轮流表.xlsx"));
 			//创建文档对象
 			wb = new XSSFWorkbook(inputStream);
 			//创建sheet页
@@ -502,13 +526,13 @@ public class UserAction extends BaseAction{
 			startCellIndex = 0,//开始创建列的位置
 			otherCellIndex = 0;//派工创建列的位置
 		if(type == "sunday"){
-			startRowIndex = 4;
+			startRowIndex = 5;
 			startCellIndex = 0;
 		}else if(type == "saturday"){
-			startRowIndex = 29;
+			startRowIndex = 30;
 			startCellIndex = 0;
 		}else{
-			startRowIndex = 57;
+			startRowIndex = 59;
 			startCellIndex = 0;
 		}
 		otherCellIndex = startCellIndex + 1;

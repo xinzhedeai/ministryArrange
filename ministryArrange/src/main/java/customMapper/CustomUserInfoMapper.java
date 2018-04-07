@@ -34,4 +34,6 @@ public interface CustomUserInfoMapper {
 	int setArrangeStatusN(List reqList);
 
 	List<Map> getAllServiceArrangeList();
+
+	int updateAddrDate(Map rec);
 }

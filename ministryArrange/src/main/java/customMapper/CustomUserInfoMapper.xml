@@ -186,6 +186,7 @@
 			,reuniondateCN
 			,arrangestatus
 			,weekofdate
+			,order_num
 		FROM
 			servicearrange
 		where 1 = 1 
@@ -198,7 +199,10 @@
 			 	and weekofdate = 5
 		 	</if>
 		 	and arrangestatus != 0
-		 	ORDER BY id DESC
+		 	ORDER BY 	
+		 	area,
+			<!-- church, -->
+			order_num ASC
 	 </select>
 	  <select id="getServiceUsers"  parameterType="String" resultType="Map">
 		SELECT
@@ -305,5 +309,11 @@
 		LEFT JOIN `user` b ON b.id = a.user_id
 		<!-- GROUP BY a.address_id -->
 	 </select>
-    
+     <update id="updateAddrDate" parameterType="Map">
+        update 
+   			servicearrange 
+   		set
+    		order_num = #{order_num}
+     	where id = #{id}
+	  </update>
 </mapper>
