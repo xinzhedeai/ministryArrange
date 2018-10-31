@@ -266,7 +266,7 @@ public class UserAction extends BaseAction{
 		CopyOnWriteArrayList<Map> fifthArrangeRecs = (CopyOnWriteArrayList<Map>)customUserMapper.getAddrRelDateList("fifth");
 		//获取服侍同工（serve_days_pre_forth值不为0的数据） 前四周可以服侍的同工
 		List<Map> forthUsers = customUserMapper.getServiceUsers("forth");
-		//获取服侍同工（serve_days_pre_forth值不为0的数据） 第五周可以服侍的同工
+		//获取服侍同工（serve_days_pre_fifth值不为0的数据） 第五周可以服侍的同工
 		List<Map> fifthUsers = customUserMapper.getServiceUsers("fifth");
 		
 		/**
